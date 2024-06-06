@@ -11,12 +11,27 @@ tags:
   - User Testing
 
 ---
+<script>
+MathJax = {
+  	tex: {
+    	inlineMath: [['$', '$'], ['\\(', '\\)']]
+  	},
+  	svg: {
+    fontCache: 'global'
+  	}
+};
+</script>
 
 ## Projet 1
 
+<p>
+  When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
+  \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
+</p>
+
 ### Introduction
 <p style="text-align: justify;">
-Dans le cadre de problèmes de mécanique vibratoire avancée, l'étude des structures doit se faire en tenant compte des forces inertielles d'entraînement afin d'obtenir les équations dynamiques du problème traité.
+Dans le cadre de problèmes de mécanique $S = 0$ vibratoire avancée, l'étude des structures doit se faire en tenant compte des forces inertielles d'entraînement afin d'obtenir les équations dynamiques du problème traité.
 
 Dans notre cas l'étude portera sur la propagation d'une onde de type longitudinale, au sein d'une barre, déclenchée par une explosion.
 Le but sera alors de comparer différentes méthodes de schéma d'intégration temporelle afin de mettre en évidence leurs précisions de calculs en fonction du pas de temps. Nous comparerons aussi la procédure PASAPAS de Cast3m à celle utilisée sur Abaqus.
