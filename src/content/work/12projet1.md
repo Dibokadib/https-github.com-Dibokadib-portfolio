@@ -102,9 +102,13 @@ Nous avons d'abord considéré un modèle d'une barre de traction en 1D, élasti
 </P> 
 <p style="text-align: justify;">
 \(   \)
+
 </P>
 <p style="text-align: justify;">
 Plan du sous-problème :
+</P> 
+<p style="text-align: justify;">
+\(   \)
 </P> 
 <p style="text-align: justify;">
 \(\text{a.} \) Conditions initiales et aux limites
@@ -122,13 +126,20 @@ Plan du sous-problème :
 #### 1.a Conditions initiales et aux limites  :
 
 <p style="text-align: justify;">
-- La barre est encastrée à son extrémité droite (H_1) : En \( x = L : u(L,t) = 0 \)  
-- La barre est soumise à un chargement \( p(t) \) à son extrémité gauche (H_2) : En \( x = 0 : N(0,t) = p(t)S \) 
+- La barre est encastrée à son extrémité droite, en $x = L$ : : 
+</P> 
+$$ u(L,t) = 0 \; \text{(H_1)} $$
 
+<p style="text-align: justify;">
+- La barre est soumise à un chargement \( p(t) \) à son extrémité gauche en $x = 0$ : :
+</P> 
+ $$ N(0,t) = p(t)S \) \(\text{(H_2)} \) $$
+
+<p style="text-align: justify;">
 - On choisit un état de repos initial pour la barre  
   (H_3) : En déplacement  \( u(x,0) = 0 \)  
   (H_4) : En vitesse : \( \frac{\partial u(x,0)}{\partial t} = 0 \) 
-
+</P> 
 #### 1.b Formulation forte
 
 ##### (i) Équation d'équilibre
