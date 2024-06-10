@@ -20,6 +20,9 @@ const { title, description } = Astro.props;
 		<MainHead title={title} description={description} />
 		<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 		<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/contrib/auto-render.min.js"></script>
 	</head>
 	<body>
 		<div class="stack backgrounds">
@@ -31,6 +34,19 @@ const { title, description } = Astro.props;
 		<script>
 			// Add “loaded” class once the document has completely loaded.
 			addEventListener('load', () => document.documentElement.classList.add('loaded'));
+		</script>
+
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+				renderMathInElement(document.body, {
+					delimiters: [
+						{left: "$$", right: "$$", display: true},
+						{left: "$", right: "$", display: false},
+						{left: "\\[", right: "\\]", display: true},
+						{left: "\\(", right: "\\)", display: false}
+					]
+				});
+			});
 		</script>
 
 		<style>
@@ -116,5 +132,6 @@ const { title, description } = Astro.props;
 				}
 			}
 		</style>
+
 	</body>
 </html>
