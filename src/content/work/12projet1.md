@@ -1,7 +1,7 @@
 ---
 title: Projet 1
 publishDate: 2020-03-04 00:00:00
-img: /assets/stock-3.jpg
+img: /assets/stock-1.jpg
 img_alt: Pearls of silky soft white cotton, bubble up under vibrant lighting
 description: |
   Réponse d'une barre à une explosion.
@@ -551,7 +551,7 @@ Comme évoqué dans la partie description du modèle <a href="#sect2">(section I
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/schema1.png" alt="Modélisation de la barre" width="600"/>
+    <img src="/assets/projet1/schema1.png" alt="Modélisation de la barre" width="600"/>
     <figcaption>Figure 1 : Modélisation de la barre</figcaption>
   </figure>
 </div>
@@ -566,7 +566,7 @@ qui en passant à la discrétisation spatiale nous donne le schéma suivant,
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/schema2.png" alt="Modélisation de la barre" width="600"/>
+    <img src="/assets/projet1/schema2.png" alt="Modélisation de la barre" width="600"/>
     <figcaption>Figure 2 : Modélisation discrète de la barre</figcaption>
   </figure>
 </div>
@@ -640,7 +640,7 @@ Les trois premières sont des méthodes faisant partie de la famille de Newmark 
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/schema3.jpg" alt=" logo castem " width="250"/>
+    <img src="/assets/projet1/schema3.jpg" alt=" logo castem " width="250"/>
     <figcaption> </figcaption>
   </figure>
 </div>
@@ -765,14 +765,14 @@ Des pas de temps cinq et dix fois inférieurs ont aussi été traités mais l'ef
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/schema4.png" alt="Figure 3 : Solution en contrainte sur Abaqus" width="500"/>
+    <img src="/assets/projet1/schema4.png" alt="Figure 3 : Solution en contrainte sur Abaqus" width="500"/>
     <figcaption>Figure 3 : Solution en contrainte sur Abaqus</figcaption>
   </figure>
 </div>
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/schema5.png" alt="Figure 3 : Solution en contrainte sur castem" width="500"/>
+    <img src="/assets/projet1/schema5.png" alt="Figure 3 : Solution en contrainte sur castem" width="500"/>
     <figcaption>Figure 4 : Solution en contrainte sur Cast3m</figcaption>
   </figure>
 </div>
@@ -834,14 +834,14 @@ Nous pouvons, par exemple, comparer le déplacement selon $x$ pour les deux cas.
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/libre.png" alt="Déplacement  bord libre" width="500"/>
+    <img src="/assets/projet1/libre.png" alt="Déplacement  bord libre" width="500"/>
     <figcaption>Figure 5 : Déplacement $u_x$ : bord libre</figcaption>
   </figure>
 </div>
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/encastre.png" alt="Déplacement bord encastré" width="500"/>
+    <img src="/assets/projet1/encastre.png" alt="Déplacement bord encastré" width="500"/>
     <figcaption>Figure 6 : Déplacement $u_x$ : bord encastré</figcaption>
   </figure>
 </div>
@@ -855,7 +855,7 @@ Nous remarquons que l'onde en $x = 0$ va s'annuler puis devenir négative dans l
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/onde.png" alt="Comportement de l'onde" width="500"/>
+    <img src="/assets/projet1/onde.png" alt="Comportement de l'onde" width="500"/>
     <figcaption>Figure 7 : Comportement de l'onde</figcaption>
   </figure>
 </div>

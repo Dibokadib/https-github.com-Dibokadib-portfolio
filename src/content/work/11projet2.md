@@ -1,7 +1,7 @@
 ---
 title: Projet 2
 publishDate: 2020-03-04 00:00:00
-img: /assets/stock-1.jpg
+img: /assets/stock-2.jpg
 img_alt: Pearls of silky soft white cotton, bubble up under vibrant lighting
 description: |
   Réponse d'une barre à une explosion.
@@ -43,7 +43,7 @@ On considère un bâtiment représenté en Figure 1., dont on souhaite étudier 
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f1.png" alt="Figure 1 : Modélisation du bâtiment" width="300"/>
+    <img src="/assets/projet2/p2f1.png" alt="Figure 1 : Modélisation du bâtiment" width="300"/>
     <figcaption>Figure 1 : Modélisation du bâtiment</figcaption>
   </figure>
 </div>
@@ -55,7 +55,7 @@ On considère un bâtiment représenté en Figure 1., dont on souhaite étudier 
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f2.png" alt="Figure 2 : Poteaux" width="300"/>
+    <img src="/assets/projet2/p2f2.png" alt="Figure 2 : Poteaux" width="300"/>
     <figcaption>Figure 2 : Poteaux</figcaption>
   </figure>
 </div>
@@ -66,7 +66,7 @@ On considère un bâtiment représenté en Figure 1., dont on souhaite étudier 
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f3.png" alt="Figure 3 : Poutres porteuses" width="300"/>
+    <img src="/assets/projet2/p2f3.png" alt="Figure 3 : Poutres porteuses" width="300"/>
     <figcaption>Figure 3 : Poutres porteuses</figcaption>
   </figure>
 </div>
@@ -77,7 +77,7 @@ On considère un bâtiment représenté en Figure 1., dont on souhaite étudier 
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f4.png" alt="Figure 4 : Dalles" width="300"/>
+    <img src="/assets/projet2/p2f4.png" alt="Figure 4 : Dalles" width="300"/>
     <figcaption>Figure 4 : Dalles</figcaption>
   </figure>
 </div>
@@ -88,7 +88,7 @@ On assemble les différentes parties afin d'obtenir la structure du bâtiment (F
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f5.png" alt="Figure 6 : Modélisation du bâtiment" width="300"/>
+    <img src="/assets/projet2/p2f5.png" alt="Figure 6 : Modélisation du bâtiment" width="300"/>
     <figcaption>Figure 5 : Modélisation du bâtiment</figcaption>
   </figure>
 </div>
@@ -156,7 +156,7 @@ Le repère du modèle section qui sert à définir la géométrie de la section 
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f6.png" alt="Figure 6 : Repère local" width="300"/>
+    <img src="/assets/projet2/p2f6.png" alt="Figure 6 : Repère local" width="300"/>
     <figcaption>Figure 6 : Repère local</figcaption>
   </figure>
 </div>
@@ -167,14 +167,14 @@ Ainsi les poutres seront plutôt orientées comme la poutre de type 1 de la figu
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f7.png" alt="igure 7 : Poutre de type 1" width="300"/>
+    <img src="/assets/projet2/p2f7.png" alt="igure 7 : Poutre de type 1" width="300"/>
     <figcaption>Figure 7 : Poutre de type 1</figcaption>
   </figure>
 </div>
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f8.png" alt="Figure 8 : Poutre de type 2" width="300"/>
+    <img src="/assets/projet2/p2f8.png" alt="Figure 8 : Poutre de type 2" width="300"/>
     <figcaption>Figure 8 : Poutre de type 2</figcaption>
   </figure>
 </div>
@@ -249,7 +249,7 @@ Nous allons étudier la réponse du bâtiment au séisme. Un séisme est un mouv
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f9.png" alt="Modélisation de la réponse au séisme" width="300"/>
+    <img src="/assets/projet2/p2f9.png" alt="Modélisation de la réponse au séisme" width="300"/>
     <figcaption>Figure 9 : Modélisation de la réponse au séisme</figcaption>
   </figure>
 </div>
@@ -323,7 +323,7 @@ dt = \frac{\text{temps total}}{\text{nombre de lignes}} = \frac{23.76}{1189} = 2
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f10.png" alt="Signal de l'accélération en fonction du temps" width="500"/>
+    <img src="/assets/projet2/p2f10.png" alt="Signal de l'accélération en fonction du temps" width="500"/>
     <figcaption>Figure 10 : Signal de l'accélération en fonction du temps</figcaption>
   </figure>
 </div>
@@ -357,7 +357,7 @@ La plage de fréquences ne peut pas aller au-delà de $25 Hz$ (\texttt{FMAX} $= 
 </div>
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f11.png" alt="Transformée de Fourrier du signal d'accélération}" width="500"/>
+    <img src="/assets/projet2/p2f11.png" alt="Transformée de Fourrier du signal d'accélération}" width="500"/>
     <figcaption>Figure 11 :Transformée de Fourrier du signal d'accélération}
   </figure>
 </div>
@@ -369,7 +369,7 @@ La plage de fréquences ne peut pas aller au-delà de $25 Hz$ (\texttt{FMAX} $= 
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f12.png" alt="Mode 3 : f= 4.27 Hz}" width="500"/>
+    <img src="/assets/projet2/p2f12.png" alt="Mode 3 : f= 4.27 Hz}" width="500"/>
     <figcaption>Figure 12 : Mode 3 : f= 4.27 Hz}
   </figure>
 </div>
@@ -384,7 +384,7 @@ $\texttt{Conclusion}$ : Pour ce chargement le mode de torsion est le plus critiq
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f13.png" alt="Coin du bâtiment}" width="200"/>
+    <img src="/assets/projet2/p2f13.png" alt="Coin du bâtiment}" width="200"/>
     <figcaption>Figure 13 : Coin du bâtiment}
   </figure>
 </div>
@@ -509,7 +509,7 @@ Les résultats sont identiques, il n'y a donc pas de pertes de précisions de ca
 </div>
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f14.png" alt="Déplacement $u_y$ de la structure}" width="500"/>
+    <img src="/assets/projet2/p2f14.png" alt="Déplacement $u_y$ de la structure}" width="500"/>
     <figcaption>Figure 14 : Déplacement $u_y$ de la structure}
   </figure>
 </div>
@@ -529,7 +529,7 @@ On constate aussi que la vitesse d’exécution du programme est à peu près qu
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/assets/p2f15.png" alt="Déplacement $u_y$ de la structure}" width="500"/>
+    <img src="/assets/projet2/p2f15.png" alt="Déplacement $u_y$ de la structure}" width="500"/>
     <figcaption>Figure 15 : Déplacement $u_y$ de la structure}
   </figure>
 </div>
