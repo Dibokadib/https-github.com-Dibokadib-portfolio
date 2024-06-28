@@ -45,6 +45,7 @@ Python est un langage de programmation très largement utilisé dans les environ
 FEniCS est un projet collaboratif développé par un groupe d'instituts de recherche à travers le monde. La librairie est distribuée gratuitement. FEniCS fournit une infrastructure avancée et moderne pour la résolution numérique des Équations aux Dérivées Partielles (EDP) par la méthode des éléments finis. Nous utiliserons l'interface Python de FEniCS, qui est chargée comme un module de Python à partir d'une console ou d'un script python, avec la commande :
 </P> 
 
+
 ```python
 from fenics import *
 ```
@@ -270,13 +271,14 @@ $$
 
 ### 5. Résolution du problème en utilisant FEniCS.
 
+
 ```python
 from fenics import *
 # Création de la géométrie et du maillage du domaine disque
 from mshr import *
 domain = Circle(Point(0.0, 0.0), 1.0)
 mesh = generate_mesh(domain, 20)
-plot(mesh, interactive=True)
+plot(mesh)
 # Définition de l'espace des fonctions admissibles 
 V = FunctionSpace(mesh,'P', 2)
 # Définition des conditions aux limites
@@ -296,9 +298,16 @@ L = f*Ttest*dx
 Ttrial = Function(V)
 solve(a == L, Ttrial, bc)
 # Tracer la solution
-u.rename('T','solution')
 plot(Ttrial)
 ```
+
+<div style="text-align: center;">
+  <figure style="display: inline-block;">
+    <img src="/src/content/work/21projet4_files/21projet4_4_1.png" alt="Figure 1 : Solution du champ de température au sein du disque" width="350"/>
+    <figcaption>Figure 1 : Solution du champ de température au sein du disque</figcaption>
+  </figure>
+</div>
+
 <p style="text-align: justify;">
 Exportons le champ solution sous la forme d'un fichier vtk nommée ThermStat.pvd et affichons le résultat à l'aide du logiciel Paraview.
 </P> 
@@ -311,13 +320,6 @@ vtkfile << Ttrial
 vtkfile = File('poisson/mesh_circle_adim.pvd')
 vtkfile << mesh
 ```
-
-\begin{figure}[H]
-\begin{center}
-\includegraphics [width=100mm]{images/poisson_circle_adim.jpg} 
-\caption{Solution du champ de température au sein du disque}
-\end{center}
-\end{figure}
 
 ### 6. Conclusion
 
