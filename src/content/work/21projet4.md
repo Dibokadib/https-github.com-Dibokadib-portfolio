@@ -70,7 +70,117 @@ L'objectif de ce premier TP est alors de résoudre avec FEniCS un problème de c
 Pour comprendre comment est structuré un script Python permettant la résolution d'un problème EDP à l'aide de FEniCS, nous allons suivre pas à pas l'exemple décrit dans le tutoriel du code, puis nous en inspirer pour résoudre un problème simple de thermique.
 </P> 
 
-##### Problème de conduction thermique stationnaire
+
+```python
+# Importation des modules nécessaires
+import fenics as fe
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Génération du maillage
+mesh = fe.UnitSquareMesh(10, 10)
+# Définition de l'espace de fonction (P = Lagrange)
+V = fe.FunctionSpace(mesh, 'P', 1)
+
+# Formulation variationnelle
+u_test = fe.TestFunction(V)
+u_trial = fe.TrialFunction(V)
+f = fe.Constant(-6.0)
+a = fe.dot(fe.grad(u_test), fe.grad(u_trial)) * fe.dx
+L = f * u_test * fe.dx
+ubar = fe.Expression('1 + pow(x[0], 2) + 2 * pow(x[1], 2)', degree=2)
+
+# Conditions aux limites
+bc = fe.DirichletBC(V, ubar, fe.DomainBoundary())
+
+# Assemblage de la matrice et du vecteur de force
+A = fe.assemble(a)
+b = fe.assemble(L)
+
+# Imposition des conditions aux limites
+bc.apply(A, b)
+
+# Résolution du système linéaire
+u = fe.Function(V)
+fe.solve(A, u.vector(), b, "gmres", "ilu")
+
+# Tracer la solution avec Matplotlib
+plt.figure(facecolor='black')  # Fond noir
+plt.gca().patch.set_facecolor('black')
+plot = fe.plot(u)
+plt.colorbar(plot)
+plt.gca().spines['bottom'].set_color('white')
+plt.gca().spines['top'].set_color('white')
+plt.gca().spines['right'].set_color('white')
+plt.gca().spines['left'].set_color('white')
+plt.gca().tick_params(axis='x', colors='white')
+plt.gca().tick_params(axis='y', colors='white')
+plt.xlabel('x', color='white')
+plt.ylabel('y', color='white')
+plt.title('Solution de l\'équation de Poisson', color='white')
+plt.savefig('output/poisson_solution_plot.png', facecolor='black')  # Spécifier le chemin du fichier PNG
+plt.show()
+```
+
+
+
+    
+
+
+<div style="text-align: center;">
+  <figure style="display: inline-block;">
+    <img src="/src/content/work/output/poisson_solution_plot.png" alt="Figure 1 : Solution de l\'équation de Poisson" width="350"/>
+    <figcaption>Figure 1 : Solution de léquation de Poisson </figcaption>
+  </figure>
+</div>
+
+
+```python
+# Tracer la solution avec Matplotlib
+plt.figure(facecolor='black')  # Fond noir
+plt.gca().patch.set_facecolor('black')
+plot = fe.plot(u)
+plt.colorbar(plot)
+plt.gca().spines['bottom'].set_color('white')
+plt.gca().spines['top'].set_color('white')
+plt.gca().spines['right'].set_color('white')
+plt.gca().spines['left'].set_color('white')
+plt.gca().tick_params(axis='x', colors='white')
+plt.gca().tick_params(axis='y', colors='white')
+plt.xlabel('x', color='white')
+plt.ylabel('y', color='white')
+plt.title('Solution de l\'équation de Poisson', color='white')
+fe.plot(mesh)
+plt.savefig('output/poisson_solution_plot_mesh.png', facecolor='black')  # Spécifier le chemin du fichier PNG
+plt.show()
+```
+
+    
+
+
+<div style="text-align: center;">
+  <figure style="display: inline-block;">
+    <img src="/src/content/work/output/poisson_solution_plot_mesh.png" alt="Figure 2 : Solution de l\'équation de Poisson maillé" width="350"/>
+    <figcaption>Figure 2 : Solution de léquation de Poisson avec son maillage</figcaption>
+  </figure>
+</div>
+
+
+```python
+# Sauvegarde de la solution au format VTK
+vtkfile = fe.File("output/poisson_solution.pvd")
+vtkfile << u
+
+# Calcul de l'erreur en norme L2
+error_L2 = fe.errornorm(ubar, u, 'L2')
+print("The L2 error is", error_L2)
+```
+
+    The L2 error is 0.0052709481720739065
+
+
+
+### 3. Problème de conduction thermique stationnaire
 
 <p style="text-align: justify;">
 On considère un disque en aluminium de rayon \( R = 1 \, m \), et de faible épaisseur.
@@ -97,7 +207,7 @@ On considère un disque en aluminium de rayon \( R = 1 \, m \), et de faible ép
 Les phénomènes de convection et de radiation sont négligés.
 </P> 
 
-### 3. Établissons la formulation forte du problème :
+#### Établissons la formulation forte du problème :
 
 ##### Équation d'équilibre thermique (stationnaire) :
 
@@ -160,7 +270,7 @@ $$
 Nous retrouvons le champ de température de l'énoncé en posant $r=x^2+y^2$.
 </P> 
 
-### 4. Établissons la formulation faible du problème
+#### Établissons la formulation faible du problème
 
 <p style="text-align: justify;">
 L'équation locale d'équilibre (1) peut être exprimée par une forme intégrale équivalente par dualisation, c'est-à-dire par multiplication par un champ de température virtuelle $T^{\ast}$ $\in$ $\Theta$ et intégration sur le support géométrique $\Omega$.
@@ -276,9 +386,9 @@ $$
 from fenics import *
 # Création de la géométrie et du maillage du domaine disque
 from mshr import *
+import matplotlib.pyplot as plt
 domain = Circle(Point(0.0, 0.0), 1.0)
 mesh = generate_mesh(domain, 20)
-plot(mesh)
 # Définition de l'espace des fonctions admissibles 
 V = FunctionSpace(mesh,'P', 2)
 # Définition des conditions aux limites
@@ -296,15 +406,72 @@ a = k*dot(grad(Ttrial), grad(Ttest))*dx
 L = f*Ttest*dx
 # Calcul de la solution
 Ttrial = Function(V)
-solve(a == L, Ttrial, bc)
-# Tracer la solution
-plot(Ttrial)
+u=solve(a == L, Ttrial, bc)
 ```
+
+
+```python
+# Tracer la solution avec Matplotlib
+plt.figure(facecolor='black')  # Fond noir
+plt.gca().patch.set_facecolor('black')
+plot = fe.plot(Ttrial)
+plt.colorbar(plot)
+plt.gca().spines['bottom'].set_color('white')
+plt.gca().spines['top'].set_color('white')
+plt.gca().spines['right'].set_color('white')
+plt.gca().spines['left'].set_color('white')
+plt.gca().tick_params(axis='x', colors='white')
+plt.gca().tick_params(axis='y', colors='white')
+plt.xlabel('x', color='white')
+plt.ylabel('y', color='white')
+plt.title('Solution du disque', color='white')
+plt.savefig('output/disque_solution_plot.png', facecolor='black')  # Spécifier le chemin du fichier PNG
+plt.show()
+```
+
+
+    
+
+    
+
 
 <div style="text-align: center;">
   <figure style="display: inline-block;">
-    <img src="/src/content/work/21projet4_files/21projet4_4_1.png" alt="Figure 1 : Solution du champ de température au sein du disque" width="350"/>
-    <figcaption>Figure 1 : Solution du champ de température au sein du disque</figcaption>
+    <img src="/src/content/work/output/disque_solution_plot.png" alt="Figure 3 : Solution du champ de température au sein du disque " width="350"/>
+    <figcaption>Figure 3 : Solution du champ de température au sein du disque </figcaption>
+  </figure>
+</div>
+
+
+```python
+# Tracer la solution avec Matplotlib
+plt.figure(facecolor='black')  # Fond noir
+plt.gca().patch.set_facecolor('black')
+plot = fe.plot(Ttrial)
+plt.colorbar(plot)
+plt.gca().spines['bottom'].set_color('white')
+plt.gca().spines['top'].set_color('white')
+plt.gca().spines['right'].set_color('white')
+plt.gca().spines['left'].set_color('white')
+plt.gca().tick_params(axis='x', colors='white')
+plt.gca().tick_params(axis='y', colors='white')
+plt.xlabel('x', color='white')
+plt.ylabel('y', color='white')
+plt.title('Solution du disque', color='white')
+fe.plot(mesh)
+plt.savefig('output/disque_solution_plot_mesh.png', facecolor='black')  # Spécifier le chemin du fichier PNG
+plt.show()
+```
+
+
+
+    
+
+
+<div style="text-align: center;">
+  <figure style="display: inline-block;">
+    <img src="/src/content/work/output/disque_solution_plot_mesh.png" alt="Figure 4 : Solution du champ de température au sein du disque et maillage" width="350"/>
+    <figcaption>Figure 4 : Solution du champ de température au sein du disque avec son maillage</figcaption>
   </figure>
 </div>
 
@@ -312,12 +479,13 @@ plot(Ttrial)
 Exportons le champ solution sous la forme d'un fichier vtk nommée ThermStat.pvd et affichons le résultat à l'aide du logiciel Paraview.
 </P> 
 
+
 ```python
 # Enregistrer la soluion au format VTK
-vtkfile = File('poisson/ThermStat_adim.pvd')
+vtkfile = File('output/ThermStat_adim.pvd')
 vtkfile << Ttrial
 # Enregistrer le maillage au format VTK
-vtkfile = File('poisson/mesh_circle_adim.pvd')
+vtkfile = File('output/mesh_circle_adim.pvd')
 vtkfile << mesh
 ```
 
