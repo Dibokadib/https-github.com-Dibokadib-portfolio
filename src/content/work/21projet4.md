@@ -45,11 +45,6 @@ Python est un langage de programmation très largement utilisé dans les environ
 FEniCS est un projet collaboratif développé par un groupe d'instituts de recherche à travers le monde. La librairie est distribuée gratuitement. FEniCS fournit une infrastructure avancée et moderne pour la résolution numérique des Équations aux Dérivées Partielles (EDP) par la méthode des éléments finis. Nous utiliserons l'interface Python de FEniCS, qui est chargée comme un module de Python à partir d'une console ou d'un script python, avec la commande :
 </P> 
 
-
-```python
-from fenics import *
-```
-
 Tout problème d'éléments finis peut être construit de la manière suivante :
 
   1. Description de la géométrie, maillage. Choix du support géométrique.
@@ -73,110 +68,199 @@ Pour comprendre comment est structuré un script Python permettant la résolutio
 
 ```python
 # Importation des modules nécessaires
-import fenics as fe
-import numpy as np
-import matplotlib.pyplot as plt
+from mpi4py import MPI # Importation de MPI pour activer le calcul parallèle
+import numpy as np # Importation de NumPy pour la gestion des tableaux et les opérations numériques
 
-# Génération du maillage
-mesh = fe.UnitSquareMesh(10, 10)
-# Définition de l'espace de fonction (P = Lagrange)
-V = fe.FunctionSpace(mesh, 'P', 1)
+# Génération du maillage d'un carré unité
+from dolfinx import mesh # Importation du module de maillage de DOLFINx
+# Création d'un maillage carré unitaire avec des éléments quadrilatéraux, partagé entre les processus MPI
+domain = mesh.create_unit_square(MPI.COMM_WORLD, 10, 10, mesh.CellType.quadrilateral)
 
-# Formulation variationnelle
-u_test = fe.TestFunction(V)
-u_trial = fe.TrialFunction(V)
-f = fe.Constant(-6.0)
-a = fe.dot(fe.grad(u_test), fe.grad(u_trial)) * fe.dx
-L = f * u_test * fe.dx
-ubar = fe.Expression('1 + pow(x[0], 2) + 2 * pow(x[1], 2)', degree=2)
+# Création de la connectivité entre les facettes et les cellules pour déterminer les facettes frontières
+tdim = domain.topology.dim # Obtenir la dimension topologique du maillage (2D pour un carré)
+fdim = tdim - 1 # Définir la dimension des facettes du maillage (1D pour les bords d'un carré 2D)
+domain.topology.create_connectivity(fdim, tdim) # Créer la connectivité entre les facettes (1D) et les cellules (2D) du maillage
+boundary_facets = mesh.exterior_facet_indices(domain.topology) # Obtenir les indices des facettes extérieures du maillage (les bords du carré)
 
-# Conditions aux limites
-bc = fe.DirichletBC(V, ubar, fe.DomainBoundary())
+# Visualisation du maillage avec PyVista
+import pyvista # Importation du module PyVista pour la visualisation 3D et la création de graphiques
+from dolfinx import plot # Importation du module de tracé de DOLFINx pour la visualisation des maillages et des solutions
+domain.topology.create_connectivity(tdim, tdim) # Crée la connectivité de la topologie du maillage entre les entités de dimension tdim (cellules)
+topology, cell_types, geometry = plot.vtk_mesh(domain, tdim) # Convertit le maillage en format compatible VTK pour la visualisation
+grid = pyvista.UnstructuredGrid(topology, cell_types, geometry) # Crée une grille non structurée PyVista pour la visualisation basée sur la topologie, les types de cellules et la géométrie
 
-# Assemblage de la matrice et du vecteur de force
-A = fe.assemble(a)
-b = fe.assemble(L)
-
-# Imposition des conditions aux limites
-bc.apply(A, b)
-
-# Résolution du système linéaire
-u = fe.Function(V)
-fe.solve(A, u.vector(), b, "gmres", "ilu")
-
-# Tracer la solution avec Matplotlib
-plt.figure(facecolor='black')  # Fond noir
-plt.gca().patch.set_facecolor('black')
-plot = fe.plot(u)
-plt.colorbar(plot)
-plt.gca().spines['bottom'].set_color('white')
-plt.gca().spines['top'].set_color('white')
-plt.gca().spines['right'].set_color('white')
-plt.gca().spines['left'].set_color('white')
-plt.gca().tick_params(axis='x', colors='white')
-plt.gca().tick_params(axis='y', colors='white')
-plt.xlabel('x', color='white')
-plt.ylabel('y', color='white')
-plt.title('Solution de l\'équation de Poisson', color='white')
-plt.savefig('output/poisson_solution_plot.png', facecolor='black')  # Spécifier le chemin du fichier PNG
-plt.show()
+# Configuration du plotter PyVista
+plotter = pyvista.Plotter() # Création d'un objet Plotter PyVista
+plotter.show_bounds(color="grey") # Affichage des limites du plot avec des lignes grises
+plotter.add_axes(color="grey") # Ajout des axes du plot avec des lignes grises
+plotter.set_background("black") # Définition de l'arrière-plan du plot en noir
+plotter.add_mesh(grid, show_edges=True) # Ajout du maillage (grid) au plot avec les bords visibles (show_edges=True)
+plotter.view_xy() # Vue XY (vue par défaut)
+plotter.add_text("Maillage du domaine", font_size=12, color="grey", position="upper_edge") # Ajout d'un texte ("Maillage du domaine") en gris en haut du plot
+if not pyvista.OFF_SCREEN: # Affichage du plot s'il n'est pas en mode OFF_SCREEN (fenêtre interactive)
+    plotter.show()
+else: # Capture d'écran du plot pour sauvegarde si en mode OFF_SCREEN
+    figure = plotter.screenshot("fundamentals_mesh.png")
 ```
-
 
 
     
-
-
-<div style="text-align: center;">
-  <figure style="display: inline-block;">
-    <img src="/src/content/work/output/poisson_solution_plot.png" alt="Figure 1 : Solution de l\'équation de Poisson" width="350"/>
-    <figcaption>Figure 1 : Solution de léquation de Poisson </figcaption>
-  </figure>
-</div>
-
-
-```python
-# Tracer la solution avec Matplotlib
-plt.figure(facecolor='black')  # Fond noir
-plt.gca().patch.set_facecolor('black')
-plot = fe.plot(u)
-plt.colorbar(plot)
-plt.gca().spines['bottom'].set_color('white')
-plt.gca().spines['top'].set_color('white')
-plt.gca().spines['right'].set_color('white')
-plt.gca().spines['left'].set_color('white')
-plt.gca().tick_params(axis='x', colors='white')
-plt.gca().tick_params(axis='y', colors='white')
-plt.xlabel('x', color='white')
-plt.ylabel('y', color='white')
-plt.title('Solution de l\'équation de Poisson', color='white')
-fe.plot(mesh)
-plt.savefig('output/poisson_solution_plot_mesh.png', facecolor='black')  # Spécifier le chemin du fichier PNG
-plt.show()
-```
-
+![png](21projet4_files/21projet4_3_0.png)
     
 
 
-<div style="text-align: center;">
-  <figure style="display: inline-block;">
-    <img src="/src/content/work/output/poisson_solution_plot_mesh.png" alt="Figure 2 : Solution de l\'équation de Poisson maillé" width="350"/>
-    <figcaption>Figure 2 : Solution de léquation de Poisson avec son maillage</figcaption>
-  </figure>
-</div>
+
+```python
+from dolfinx.fem import functionspace # Importation de la fonction pour créer un espace de fonctions
+from dolfinx import fem  # Importation des fonctionnalités de FEniCSx pour la mécanique des solides
+V = fem.functionspace(domain, ("Lagrange", 1)) # Création de l'espace de fonctions de type Lagrange d'ordre 1
+
+# Définition de la formulation variationnelle
+import ufl # Importation du module UFL pour la définition symbolique des fonctions
+u = ufl.TrialFunction(V)  # Définition de la fonction d'essai u dans l'espace de fonctions V
+v = ufl.TestFunction(V)# Définition de la fonction d'essai v dans l'espace de fonctions V
+
+# Définition de la source et des formes bilinéaire et linéaire
+from dolfinx import default_scalar_type # Importation du type scalaire par défaut
+from petsc4py import PETSc  # Importation de PETSc pour les calculs parallèles et la manipulation de matrices
+f = fem.Constant(domain, PETSc.ScalarType(-6.0))
+a = ufl.dot(ufl.grad(v), ufl.grad(u)) * ufl.dx     # Définition de la forme bilinéaire a pour le problème variationnel
+L = f * v * ufl.dx                               # Définition de la forme linéaire L pour le problème variationnel
+
+# Conditions aux limites (Dirichlet)
+u_D = fem.Function(V) # Définition d'une fonction u_D dans l'espace de fonctions V
+u_D.interpolate(lambda x: 1 + x[0]**2 + 2 * x[1]**2) # Interpolation de u_D avec une fonction lambda quadratique
+bc = fem.dirichletbc(u_D, fem.locate_dofs_geometrical(V, lambda x: np.full(x.shape[1], True, dtype=bool))) # Définition des conditions de Dirichlet sur u_D
+
+# Résolution du problème variationnel
+uh = fem.Function(V) # Définition d'une fonction uh dans l'espace de fonctions V
+from dolfinx.fem.petsc import LinearProblem # Importation du problème linéaire PETSc
+problem = LinearProblem(a, L, bcs=[bc], petsc_options={"ksp_type": "preonly", "pc_type": "lu"}) # Définition du problème linéaire avec les conditions de Dirichlet bc
+uh = problem.solve()  # Résolution du problème linéaire pour trouver uh
+```
 
 
 ```python
-# Sauvegarde de la solution au format VTK
-vtkfile = fe.File("output/poisson_solution.pvd")
-vtkfile << u
+# Préparation des données pour la visualisation
+u_grid = pyvista.UnstructuredGrid(topology, cell_types, geometry) # Crée un objet pyvista.UnstructuredGrid avec la topologie, les types de cellules et la géométrie fournis
+u_grid.point_data["u"] = uh.x.array.real # Associe les valeurs réelles de la solution uh aux données de points "u" sur le maillage u_grid
+u_grid.set_active_scalars("u") # Définit "u" comme le scalaire actif sur le maillage u_grid, utilisé pour la visualisation ou l'exportation
 
-# Calcul de l'erreur en norme L2
-error_L2 = fe.errornorm(ubar, u, 'L2')
-print("The L2 error is", error_L2)
+# Configuration du plotter PyVista pour la solution
+u_plotter = pyvista.Plotter()
+u_plotter.set_background("black")
+u_plotter.add_mesh(u_grid, show_edges=True, cmap="turbo", show_scalar_bar=False)  # Pas de barre de couleurs initiale
+
+# Ajout d'une barre de couleurs personnalisée
+scalar_bar = u_plotter.add_scalar_bar(
+    color="grey",  # Couleur du texte de la barre scalaire
+    title="u",  # Titre de la barre scalaire
+    title_font_size=24,  # Taille de police du titre
+    label_font_size=22,  # Taille de police des étiquettes
+    shadow=False,  # Désactiver l'ombre
+    n_labels=5,  # Nombre d'étiquettes sur la barre scalaire
+    italic=False,  # Texte en italique
+    font_family="arial",  # Famille de police du texte
+    vertical=True  # Orientation verticale de la barre scalaire
+)
+
+# Customisation des axes
+u_plotter.show_bounds(color="grey")
+u_plotter.add_axes(color="grey")
+u_plotter.view_xy()
+
+# Ajouter le titre en gris
+u_plotter.add_text("Solution de l'équation de Poisson", font_size=12, color="grey", position="upper_edge")
+
+# Affichage ou sauvegarde de l'image
+if not pyvista.OFF_SCREEN:
+    u_plotter.show()
+else:
+    figure = u_plotter.screenshot("21projet4_files/carre/poisson_solution.png")
 ```
 
-    The L2 error is 0.0052709481720739065
+
+    
+![png](21projet4_files/21projet4_5_0.png)
+    
+
+
+
+```python
+# Interpolation de la solution exacte pour comparaison
+V2 = fem.functionspace(domain, ("Lagrange", 2)) # Définition d'un nouvel espace de fonctions V2 avec un degré de Lagrange 2
+uex = fem.Function(V2) # Définition d'une fonction uex dans l'espace de fonctions V2
+uex.interpolate(lambda x: 1 + x[0]**2 + 2 * x[1]**2) # Interpolation de uex avec une fonction lambda quadratique
+
+# Calcul de l'erreur L2
+import numpy
+L2_error = fem.form(ufl.inner(uh - uex, uh - uex) * ufl.dx) # Calcul de l'erreur L2
+error_local = fem.assemble_scalar(L2_error) # Assemblage de l'erreur locale sur chaque processus MPI
+error_L2 = numpy.sqrt(domain.comm.allreduce(error_local, op=MPI.SUM)) # Calcul de l'erreur L2 totale en prenant la racine carrée de la somme des erreurs locales
+
+# Calcul de l'erreur maximale
+error_max = numpy.max(numpy.abs(u_D.x.array - uh.x.array)) # Calcul de l'erreur maximale entre la solution exacte et la solution numérique
+
+# Affichage des erreurs seulement sur un processus (rank) spécifique (rank 0 dans ce cas)
+if domain.comm.rank == 0:
+    print(f"Error_L2 : {error_L2:.2e}")
+    print(f"Error_max : {error_max:.2e}")
+
+```
+
+    Error_L2 : 5.27e-03
+    Error_max : 0.00e+00
+
+
+
+```python
+from dolfinx import io  # Importe le module d'entrée/sortie de DolfinX pour la manipulation des fichiers VTK
+from pathlib import Path  # Importe la classe Path de Python pour la gestion des chemins de fichiers
+
+results_folder = Path("21projet4_files/carre")  # Définit le chemin du dossier de résultats où seront enregistrés les fichiers
+results_folder.mkdir(exist_ok=True, parents=True)  # Crée le dossier "results" s'il n'existe pas déjà, avec les parents si nécessaire
+filename = results_folder / "fundamentals"  # Définit le nom de base du fichier de sortie comme "fundamentals" dans "results"
+
+with io.VTXWriter(domain.comm, filename.with_suffix(".bp"), [uh]) as vtx:
+    vtx.write(0.0)  # Écrit les données du champ `uh` au format VTK dans un fichier ".bp" (doek)
+
+with io.XDMFFile(domain.comm, filename.with_suffix(".xdmf"), "w") as xdmf:
+    xdmf.write_mesh(domain)  # Écrit le maillage dans le fichier XDMF
+    xdmf.write_function(uh)  # Écrit le champ de solution `uh` dans le fichier XDMF (doek)
+```
+
+
+```python
+# Visualisation de la solution en 3D
+# Cette ligne applique une déformation au maillage u_grid en fonction des valeurs scalaires associées
+warped = u_grid.warp_by_scalar() 
+
+plotter2 = pyvista.Plotter()
+plotter2.set_background("black")
+plotter2.add_mesh(warped, show_edges=True, cmap="turbo", show_scalar_bar=False)
+
+scalar_bar = plotter2.add_scalar_bar(
+    color="white",  
+    title="u",
+    title_font_size=24,
+    label_font_size=22,
+    shadow=False,
+    n_labels=5,
+    italic=False,
+    font_family="arial",
+    vertical=True  
+)
+
+plotter2.add_text("Solution de l'équation de Poisson en 3D", font_size=12, color="white", position="upper_edge")
+
+if not pyvista.OFF_SCREEN:
+    plotter2.show()
+```
+
+
+    
+![png](21projet4_files/21projet4_8_0.png)
+    
 
 
 
@@ -383,97 +467,121 @@ $$
 
 
 ```python
-from fenics import *
-# Création de la géométrie et du maillage du domaine disque
-from mshr import *
-import matplotlib.pyplot as plt
-domain = Circle(Point(0.0, 0.0), 1.0)
-mesh = generate_mesh(domain, 20)
-# Définition de l'espace des fonctions admissibles 
-V = FunctionSpace(mesh,'P', 2)
-# Définition des conditions aux limites
-T_D = 298
-def boundary(x, on_boundary):
-    return on_boundary
-bc = DirichletBC(V, T_D, boundary)
-# Constantes du problème
-f = Constant(100.0)
-k = 0.92
-# Définition du problème variationnel
-Ttrial = TrialFunction(V)
-Ttest = TestFunction(V)
-a = k*dot(grad(Ttrial), grad(Ttest))*dx
-L = f*Ttest*dx
-# Calcul de la solution
-Ttrial = Function(V)
-u=solve(a == L, Ttrial, bc)
+import gmsh
+import numpy as np
+from mpi4py import MPI
+from dolfinx import mesh, fem, plot
+from dolfinx.io import gmshio
+from petsc4py import PETSc
+import ufl
+import pyvista
+
+# Initialisation de GMSH
+gmsh.initialize()
+
+# Création de la géométrie du disque avec GMSH
+membrane = gmsh.model.occ.addDisk(0, 0, 0, 1, 1)
+gmsh.model.occ.synchronize()
+
+# Marquage de la surface physique
+gdim = 2
+gmsh.model.addPhysicalGroup(gdim, [membrane], 1)
+
+# Génération du maillage
+gmsh.option.setNumber("Mesh.CharacteristicLengthMin", 0.05)
+gmsh.option.setNumber("Mesh.CharacteristicLengthMax", 0.05)
+gmsh.model.mesh.generate(gdim)
+
+# Importation du maillage GMSH dans DOLFINx
+gmsh_model_rank = 0
+mesh_comm = MPI.COMM_WORLD
+domain, cell_markers, facet_markers = gmshio.model_to_mesh(gmsh.model, mesh_comm, gmsh_model_rank, gdim=gdim)
+
+# Fermeture de GMSH
+gmsh.finalize()
+
+# Définition de l'espace des fonctions dans DOLFINx
+V = fem.functionspace(domain, ("Lagrange", 2))
+
+# Formulation variationnelle du problème
+u = ufl.TrialFunction(V)
+v = ufl.TestFunction(V)
+f = fem.Constant(domain, PETSc.ScalarType(100.0))
+a = 0.92 * ufl.dot(ufl.grad(u), ufl.grad(v)) * ufl.dx
+L = f * v * ufl.dx
+
+# Conditions aux limites
+T_D = 298.0
+u_D = fem.Function(V)
+u_D.interpolate(lambda x: np.full(x.shape[1], T_D))
+import numpy as np
+
+def on_boundary(x):
+    return np.isclose(np.sqrt(x[0]**2 + x[1]**2), 1)
+
+boundary_dofs = fem.locate_dofs_geometrical(V, on_boundary)
+bc = fem.dirichletbc(u_D, boundary_dofs)
+# Vérification des valeurs de la condition aux limites
+print("Valeurs de la condition aux limites:", u_D.x.array)
+
+# Résolution du problème variationnel
+uh = fem.Function(V)
+problem = fem.petsc.LinearProblem(a, L, bcs=[bc], petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
+uh = problem.solve()
+
+# Vérification de la solution obtenue
+print("Solution obtenue:", uh.x.array)
+
+# Visualisation de la solution
+plotter = pyvista.Plotter()
+topology, cell_types, geometry = plot.vtk_mesh(domain, gdim)
+grid = pyvista.UnstructuredGrid(topology, cell_types, geometry)
+u_topology, u_cell_types, u_geometry = plot.vtk_mesh(V)
+u_grid = pyvista.UnstructuredGrid(u_topology, u_cell_types, u_geometry)
+u_grid.point_data["u"] = uh.x.array.real
+u_grid.set_active_scalars("u")
+plotter.show_bounds(color="grey")
+plotter.add_axes(color="grey")
+plotter.set_background("black")
+plotter.add_mesh(grid, show_edges=True)
+plotter.view_xy()
+plotter.add_text("Maillage du domaine", font_size=12, color="grey", position="upper_edge")
+plotter.add_mesh(u_grid, show_edges=True, cmap="turbo", show_scalar_bar=False)  # Pas de barre scalaire initiale
+scalar_bar = plotter.add_scalar_bar(
+    color="grey",  # Couleur du texte de la barre scalaire
+    title="u",  # Titre de la barre scalaire
+    title_font_size=24,  # Taille de police du titre
+    label_font_size=22,  # Taille de police des étiquettes
+    shadow=False,  # Désactiver l'ombre
+    n_labels=5,  # Nombre d'étiquettes sur la barre scalaire
+    italic=False,  # Texte en italique
+    font_family="arial",  # Famille de police du texte
+    vertical=True  # Orientation verticale de la barre scalaire
+)
+if not pyvista.OFF_SCREEN:
+    plotter.show()
+else:
+    # Capture d'écran du plot pour sauvegarde si en mode OFF_SCREEN
+    figure = plotter.screenshot("fundamentals_mesh.png")
 ```
 
+    Info    : Meshing 1D...
+    Info    : Meshing curve 1 (Ellipse)
+    Info    : Done meshing 1D (Wall 0.000199623s, CPU 0.000227s)
+    Info    : Meshing 2D...
+    Info    : Meshing surface 1 (Plane, Frontal-Delaunay)
+    Info    : Done meshing 2D (Wall 0.0392798s, CPU 0.038522s)
+    Info    : 1550 nodes 3099 elements
+    Valeurs de la condition aux limites: [298. 298. 298. ... 298. 298. 298.]
+    Solution obtenue: [298.         301.1552807  298.         ... 299.40555434 299.38417234
+     299.39203809]
 
-```python
-# Tracer la solution avec Matplotlib
-plt.figure(facecolor='black')  # Fond noir
-plt.gca().patch.set_facecolor('black')
-plot = fe.plot(Ttrial)
-plt.colorbar(plot)
-plt.gca().spines['bottom'].set_color('white')
-plt.gca().spines['top'].set_color('white')
-plt.gca().spines['right'].set_color('white')
-plt.gca().spines['left'].set_color('white')
-plt.gca().tick_params(axis='x', colors='white')
-plt.gca().tick_params(axis='y', colors='white')
-plt.xlabel('x', color='white')
-plt.ylabel('y', color='white')
-plt.title('Solution du disque', color='white')
-plt.savefig('output/disque_solution_plot.png', facecolor='black')  # Spécifier le chemin du fichier PNG
-plt.show()
-```
 
 
     
-
+![png](21projet4_files/21projet4_10_1.png)
     
 
-
-<div style="text-align: center;">
-  <figure style="display: inline-block;">
-    <img src="/src/content/work/output/disque_solution_plot.png" alt="Figure 3 : Solution du champ de température au sein du disque " width="350"/>
-    <figcaption>Figure 3 : Solution du champ de température au sein du disque </figcaption>
-  </figure>
-</div>
-
-
-```python
-# Tracer la solution avec Matplotlib
-plt.figure(facecolor='black')  # Fond noir
-plt.gca().patch.set_facecolor('black')
-plot = fe.plot(Ttrial)
-plt.colorbar(plot)
-plt.gca().spines['bottom'].set_color('white')
-plt.gca().spines['top'].set_color('white')
-plt.gca().spines['right'].set_color('white')
-plt.gca().spines['left'].set_color('white')
-plt.gca().tick_params(axis='x', colors='white')
-plt.gca().tick_params(axis='y', colors='white')
-plt.xlabel('x', color='white')
-plt.ylabel('y', color='white')
-plt.title('Solution du disque', color='white')
-fe.plot(mesh)
-plt.savefig('output/disque_solution_plot_mesh.png', facecolor='black')  # Spécifier le chemin du fichier PNG
-plt.show()
-```
-
-
-
-    
-
-
-<div style="text-align: center;">
-  <figure style="display: inline-block;">
-    <img src="/src/content/work/output/disque_solution_plot_mesh.png" alt="Figure 4 : Solution du champ de température au sein du disque et maillage" width="350"/>
-    <figcaption>Figure 4 : Solution du champ de température au sein du disque avec son maillage</figcaption>
-  </figure>
-</div>
 
 <p style="text-align: justify;">
 Exportons le champ solution sous la forme d'un fichier vtk nommée ThermStat.pvd et affichons le résultat à l'aide du logiciel Paraview.
@@ -481,12 +589,22 @@ Exportons le champ solution sous la forme d'un fichier vtk nommée ThermStat.pvd
 
 
 ```python
-# Enregistrer la soluion au format VTK
-vtkfile = File('output/ThermStat_adim.pvd')
-vtkfile << Ttrial
-# Enregistrer le maillage au format VTK
-vtkfile = File('output/mesh_circle_adim.pvd')
-vtkfile << mesh
+# Interpoler la fonction sur un espace de fonctions de même degré que le maillage
+from dolfinx.fem import Function
+from dolfinx.io import XDMFFile
+
+V_new = fem.functionspace(domain, ("Lagrange", 1))
+uh_interpolated = Function(V_new)
+uh_interpolated.interpolate(uh)
+
+# Enregistrer la solution interpolée au format XDMF
+with XDMFFile(domain.comm, "21projet4_files/disque/ThermStat_adim.xdmf", "w") as xdmf:
+    xdmf.write_mesh(domain)
+    xdmf.write_function(uh_interpolated, t=0.0)
+
+# Enregistrer le maillage au format XDMF
+with XDMFFile(domain.comm, "21projet4_files/disque/mesh_circle_adim.xdmf", "w") as xdmf:
+    xdmf.write_mesh(domain)
 ```
 
 ### 6. Conclusion
